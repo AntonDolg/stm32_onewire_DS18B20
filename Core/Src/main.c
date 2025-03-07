@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ds18b20.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +42,7 @@
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+DS18B20 temperatureSensor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,13 +88,34 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  DS18B20_Init(&temperatureSensor, &huart1);
 
+    DS18B20_InitializationCommand(&temperatureSensor);
+    DS18B20_ReadRom(&temperatureSensor);
+    DS18B20_ReadScratchpad(&temperatureSensor);
+
+    uint8_t settings[3];
+    settings[0] = temperatureSensor.temperatureLimitHigh;
+    settings[1] = temperatureSensor.temperatureLimitLow;
+    settings[2] = DS18B20_12_BITS_CONFIG;
+
+    DS18B20_InitializationCommand(&temperatureSensor);
+    DS18B20_SkipRom(&temperatureSensor);
+    DS18B20_WriteScratchpad(&temperatureSensor, settings);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  DS18B20_InitializationCommand(&temperatureSensor);
+	      DS18B20_SkipRom(&temperatureSensor);
+	      DS18B20_ConvertT(&temperatureSensor, DS18B20_DATA);
+
+	      DS18B20_InitializationCommand(&temperatureSensor);
+	      DS18B20_SkipRom(&temperatureSensor);
+	      DS18B20_ReadScratchpad(&temperatureSensor);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
